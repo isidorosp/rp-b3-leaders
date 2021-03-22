@@ -3,6 +3,8 @@ import Footer from './components/Footer';
 import TopXHorizontal from './components/TopXHorizontal';
 import { useFetch } from './hooks/useFetch'
 import ParentSize from '@visx/responsive/lib/components/ParentSize';
+import { ValidatorInfo, ValidatorData, ValidatorDataSet } from './validatorData';
+import FormatNumber from './components/FormatNumber';
 
 function App() {
   const leaderboardUrl = `https://raw.githubusercontent.com/norinthebold/rocketpool-final-beta-leaderboard/main/data/leaderboard.json`;
@@ -10,6 +12,7 @@ function App() {
   const [dataToFetch, setDataToFetch] = useState(leaderboardUrl);
   const [configDrawerVisible, setConfigDrawerVisible] = useState(false);
 
+  const [numberFormat, setNumberFormat] = useState('eth');
 
   const { status, data, error } = useFetch(dataToFetch);
 
@@ -18,17 +21,18 @@ function App() {
   }
 
   const handleDataSourceToggle = (e: ChangeEvent<HTMLInputElement>) => {
-    console.log('test')
     switch (e.target.value) {
       case 'limited':
-        console.log('setting to limited')
         setDataToFetch(leaderboardUrl);
         break;  
       default:
-        console.log('setting to all')
         setDataToFetch(allValidatorsUrl);
         break;
     }
+  }
+
+  const handleNumberFormatToggle = (e: ChangeEvent<HTMLInputElement>) => {
+    setNumberFormat(e.target.value)
   }
 
 
@@ -45,29 +49,57 @@ function App() {
             <span className="align-text-top">Configure</span>
           </button>
         </div>
-        <div className={`flex flex-col w-5/6 my-6 ${configDrawerVisible ? '' : 'hidden'}`}>
-          <label>
-            <input
-              className="mr-2"
-              type="radio"
-              name="dataSource"
-              value="limited"
-              checked={dataToFetch === leaderboardUrl}
-              onChange={handleDataSourceToggle}
-            />
-            Use leaderboard data (only counts best performing validator per node)
-          </label>
-          <label>
-            <input
-              className="mr-2"
-              type="radio"
-              name="dataSource"
-              value="all"
-              checked={dataToFetch === allValidatorsUrl}
-              onChange={handleDataSourceToggle}
-            />
-            Use all validator data
-          </label>
+        <div className={`w-5/6 my-6 ${configDrawerVisible ? '' : 'hidden'}`}>
+          <div className="flex flex-col">
+            --- Data source
+            <label>
+              <input
+                className="mr-2"
+                type="radio"
+                name="dataSource"
+                value="limited"
+                checked={dataToFetch === leaderboardUrl}
+                onChange={handleDataSourceToggle}
+              />
+              Use leaderboard data (only counts best performing validator per node)
+            </label>
+            <label>
+              <input
+                className="mr-2"
+                type="radio"
+                name="dataSource"
+                value="all"
+                checked={dataToFetch === allValidatorsUrl}
+                onChange={handleDataSourceToggle}
+              />
+              Use all validator data
+            </label>
+          </div>
+          <div className="flex flex-col mt-4">
+            --- Number format
+            <label>
+              <input
+                className="mr-2"
+                type="radio"
+                name="numberFormat"
+                value="eth"
+                checked={numberFormat === 'eth'}
+                onChange={handleNumberFormatToggle}
+              />
+              ETH
+            </label>
+            <label>
+              <input
+                className="mr-2"
+                type="radio"
+                name="numberFormat"
+                value="gwei"
+                checked={numberFormat === 'gwei'}
+                onChange={handleNumberFormatToggle}
+              />
+              Gwei (10<sup>-9</sup> ETH)
+            </label>
+          </div>
         </div>
       </div>
       <div className="w-5/6 mb-8">
@@ -80,6 +112,20 @@ function App() {
                     <TopXHorizontal width={width} height={height} data={data} numItems={10} events={true} />
                   }
                 </ParentSize>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 mb-12">
+              <div className="text-center">
+                <span className="block mb-1 text-4xl font-bold font-montserrat">Avg. Gains</span>
+                <span className="text-3xl">
+                  <FormatNumber format={numberFormat} number={(data.reduce((acc: number, obj: ValidatorData) => { return acc + Number(obj.adjusted_balance) }, 0)/ data.length)} />
+                </span>
+              </div>
+              <div className="text-center">
+                <span className="block mb-1 text-4xl font-bold font-montserrat">Total Gains</span>
+                <span className="text-3xl">
+                  <FormatNumber format={numberFormat} number={data.reduce((acc: number, obj: ValidatorData) => { return acc + Number(obj.adjusted_balance) }, 0)} />
+                </span>
               </div>
             </div>
             { `total records: ${data.length}`}
