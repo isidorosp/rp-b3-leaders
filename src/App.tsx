@@ -6,7 +6,7 @@ import ParentSize from '@visx/responsive/lib/components/ParentSize';
 
 function App() {
   const url = `https://raw.githubusercontent.com/norinthebold/rocketpool-final-beta-leaderboard/main/data/all_validators.json`;
-  const { data, error } = useFetch(url);
+  const { status, data, error } = useFetch(url);
 
 
   return (
@@ -15,41 +15,26 @@ function App() {
         ROCKETPOOL b3<br />
         Leaderboard
       </div>
-      { (!error) ?
-        <div className="grid w-5/6 grid-cols-3 gap-4">
-          <div className="h-80">
-            <ParentSize>
-              {({ width, height}) => 
-                <TopXHorizontal width={width} height={height} data={data} numItems={10} events={true} />
-              }
-            </ParentSize>
+      <div className="w-5/6 mb-8">
+        { (!error && status === 'fetched') &&
+          <div className="grid grid-cols-3 gap-4">
+            <div className="h-80">
+              <ParentSize>
+                {({ width, height}) => 
+                  <TopXHorizontal width={width} height={height} data={data} numItems={10} events={true} />
+                }
+              </ParentSize>
+            </div>
           </div>
-        </div>
-        :
-        <div>There was an error querying the data: {error}</div>
-      }
-
-      <p className="mt-6 tracking-wide">
-        Edit <code>src/App.jsx</code> and save to reload.
-      </p>
-      <div className="flex justify-center mt-4">
-        <a
-          className="px-4 py-2 text-white bg-indigo-500 rounded hover:bg-indigo-600"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-        <a
-          className="px-4 py-2 ml-4 text-white bg-indigo-500 rounded hover:bg-indigo-600"
-          href="https://tailwindcss.com"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn Tailwind
-        </a>
+        }
+        { (status !== 'fetched') && 
+          <div>Data is loading...</div>
+        }
+        { (error) && 
+          <div>There was an error querying the data: {error}</div>
+        }
       </div>
+
       <Footer />
     </div>
   );
