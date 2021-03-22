@@ -3,7 +3,7 @@ import Footer from './components/Footer';
 import TopXHorizontal from './components/TopXHorizontal';
 import { useFetch } from './hooks/useFetch'
 import ParentSize from '@visx/responsive/lib/components/ParentSize';
-import { ValidatorInfo, ValidatorData, ValidatorDataSet } from './validatorData';
+import { ValidatorData } from './validatorData';
 import FormatNumber from './components/FormatNumber';
 
 function App() {
