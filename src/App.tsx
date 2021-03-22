@@ -5,7 +5,7 @@ import { useFetch } from './hooks/useFetch'
 import ParentSize from '@visx/responsive/lib/components/ParentSize';
 
 function App() {
-  const url = `https://raw.githubusercontent.com/norinthebold/rocketpool-final-beta-leaderboard/main/data/all_validators.json`;
+  const url = `https://raw.githubusercontent.com/norinthebold/rocketpool-final-beta-leaderboard/main/data/leaderboard.json`;
   const { status, data, error } = useFetch(url);
 
 

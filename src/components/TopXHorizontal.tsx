@@ -17,6 +17,7 @@ export type BarGroupProps = {
 type TooltipData = {
   validator: ValidatorInfo;
   adjusted_balance: number;
+  block_proposals: number;
 };
 
 const verticalMargin = 40;
@@ -25,7 +26,7 @@ const barFill = '#DE6D6E';
 let tooltipTimeout: number;
 const tooltipStyles = {
   ...defaultStyles,
-  minWidth: 60,
+  minWidth: 200,
   backgroundColor: 'rgba(0,0,0,0.9)',
   color: 'white',
 };
@@ -128,14 +129,10 @@ export default withTooltip<BarGroupProps, TooltipData>(({
             <div>
               {tooltipOpen && tooltipData && (
               <Tooltip top={tooltipTop} left={tooltipLeft} style={tooltipStyles}>
-                <div>
-                  <div className="w-full font-bold text-center">{tooltipData.adjusted_balance}</div>
-                  <span>{tooltipData.validator.pubkey.slice(0, 5) + '...' + tooltipData.validator.pubkey.slice(-4)}</span>
-                {/* </div>
-                <div>{tooltipData.bar.data[tooltipData.key]}℉</div>
-                <div>
-                  <small>{formatDate(getDate(tooltipData.bar.data))}</small>
-                */}
+                <div className="flex-col items-center content-center justify-center">
+                  <div className="font-bold text-center">{tooltipData.adjusted_balance}</div>
+                  <div className="text-center">{tooltipData.validator.pubkey.slice(0, 5) + '...' + tooltipData.validator.pubkey.slice(-4)}</div>
+                  <div className="text-center">{tooltipData.block_proposals} block proposed</div>
                 </div>
               </Tooltip>
               )}
