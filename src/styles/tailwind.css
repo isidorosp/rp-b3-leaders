@@ -13,3 +13,21 @@
 /* Stop purging. */
 
 /* Your own custom utilities */
+@layer base {
+  a {
+    @apply bg-white text-black px-2    
+  }
+  a:hover {
+    @apply bg-gray-400
+  }
+
+  ::-moz-selection {
+    color: black;
+    background: white;
+  }
+  
+  ::selection {
+    color: black;
+    background: white;
+  }
+}
