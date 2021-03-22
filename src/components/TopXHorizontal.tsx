@@ -1,12 +1,10 @@
-import React, { useMemo, useCallback } from 'react'
+import React, { useMemo } from 'react'
 import { Group } from '@visx/group';
 import { Bar } from '@visx/shape';
-import { SeriesPoint } from '@visx/shape/lib/types';
 import { scaleLinear, scaleBand } from '@visx/scale';
-import { ValidatorData, ValidatorDataSet } from '../validatorData';
+import { ValidatorInfo, ValidatorData, ValidatorDataSet } from '../validatorData';
 import { withTooltip, Tooltip, defaultStyles } from '@visx/tooltip';
 import { WithTooltipProvidedProps } from '@visx/tooltip/lib/enhancers/withTooltip';
-import { localPoint } from '@visx/event';
 
 export type BarGroupProps = {
   width: number;
@@ -17,7 +15,7 @@ export type BarGroupProps = {
 };
 
 type TooltipData = {
-  // bar: SeriesPoint<ValidatorData>;
+  validator: ValidatorInfo;
   adjusted_balance: number;
 };
 
@@ -115,7 +113,7 @@ export default withTooltip<BarGroupProps, TooltipData>(({
                         if (tooltipTimeout) clearTimeout(tooltipTimeout);
                         const top = barY;
                         const left = barX + barWidth;
-                        const yOffset = verticalMargin + barHeight / 2 - 2;
+                        const yOffset = verticalMargin;
                         showTooltip({
                           tooltipData: d,
                           tooltipTop: top! + yOffset,
@@ -131,7 +129,8 @@ export default withTooltip<BarGroupProps, TooltipData>(({
               {tooltipOpen && tooltipData && (
               <Tooltip top={tooltipTop} left={tooltipLeft} style={tooltipStyles}>
                 <div>
-                  <strong>{tooltipData.adjusted_balance}</strong>
+                  <div className="w-full font-bold text-center">{tooltipData.adjusted_balance}</div>
+                  <span>{tooltipData.validator.pubkey.slice(0, 5) + '...' + tooltipData.validator.pubkey.slice(-4)}</span>
                 {/* </div>
                 <div>{tooltipData.bar.data[tooltipData.key]}℉</div>
                 <div>

@@ -2,10 +2,11 @@ import React from 'react';
 import Footer from './components/Footer';
 import TopXHorizontal from './components/TopXHorizontal';
 import { useFetch } from './hooks/useFetch'
+import ParentSize from '@visx/responsive/lib/components/ParentSize';
 
 function App() {
   const url = `https://raw.githubusercontent.com/norinthebold/rocketpool-final-beta-leaderboard/main/data/all_validators.json`;
-  const { status, data, error } = useFetch(url);
+  const { data, error } = useFetch(url);
 
 
   return (
@@ -14,11 +15,19 @@ function App() {
         ROCKETPOOL b3<br />
         Leaderboard
       </div>
-      <div className="grid w-5/6 grid-cols-3 gap-4">
-        <div>
-          <TopXHorizontal width={300} height={300} data={data} numItems={10} events={true} />
+      { (!error) ?
+        <div className="grid w-5/6 grid-cols-3 gap-4">
+          <div className="h-80">
+            <ParentSize>
+              {({ width, height}) => 
+                <TopXHorizontal width={width} height={height} data={data} numItems={10} events={true} />
+              }
+            </ParentSize>
+          </div>
         </div>
-      </div>
+        :
+        <div>There was an error querying the data: {error}</div>
+      }
 
       <p className="mt-6 tracking-wide">
         Edit <code>src/App.jsx</code> and save to reload.
