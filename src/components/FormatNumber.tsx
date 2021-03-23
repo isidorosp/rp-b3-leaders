@@ -1,17 +1,18 @@
-import React from 'react'
+import React, { useContext } from 'react'
+import { NumberFormatContext } from '../App'
 
 export type FormatNumberProps = {
-  format: string;
   number: number
 }
 
 const FormatNumber = ({
-  format = 'eth',
   number,
 }: FormatNumberProps) => {
   let multiplier: number;
   let decimals: number;
   let symbol: string;
+
+  const format = useContext(NumberFormatContext)
 
   switch (format) {
     case 'gwei':
@@ -33,7 +34,7 @@ const FormatNumber = ({
 
   return (
     <>
-      { `${printNumber} ${symbol}` }
+      { `${printNumber} ${symbol} `}
     </>
   )
 }
