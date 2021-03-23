@@ -1,15 +1,14 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 import { Group } from '@visx/group';
 import { scaleLinear } from '@visx/scale';
 import { Bin } from '@visx/mock-data/lib/generators/genBins';
-import { HeatmapCircle, HeatmapRect } from '@visx/heatmap';
+import { HeatmapCircle } from '@visx/heatmap';
 import { ValidatorDataSet, ValidatorData } from '../validatorData';
-import { bin, extent } from 'd3-array';
 
 const hot1 = '#77312f';
 const hot2 = '#f33d15';
-const cool1 = '#122549';
-const cool2 = '#b4fbde';
+// const cool1 = '#122549';
+// const cool2 = '#b4fbde';
 export const background = 'transparent';
 
 type EnhancedBin = Bin & {
