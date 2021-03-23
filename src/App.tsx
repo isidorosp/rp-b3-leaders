@@ -5,6 +5,7 @@ import { useFetch } from './hooks/useFetch'
 import ParentSize from '@visx/responsive/lib/components/ParentSize';
 import { ValidatorData } from './validatorData';
 import FormatNumber from './components/FormatNumber';
+import Heatmap from './components/Heatmap';
 
 export const NumberFormatContext = React.createContext('eth');
 
@@ -44,7 +45,6 @@ function App() {
         <div className="flex items-center mb-16 text-6xl font-bold text-center font-montserrat">
           ROCKETPOOL b3<br />
           Leaderboard
-          {}
         </div>
         <div className="flex flex-col w-5/6 mb-16">
           <div>
@@ -109,11 +109,18 @@ function App() {
         <div className="w-5/6 mb-8">
           { (!error && status === 'fetched') &&
             <div>
-              <div className="grid grid-cols-3 gap-4 mb-12">
+              <div className="grid grid-cols-2 gap-4 mb-12">
                 <div className="h-80">
                   <ParentSize>
                     {({ width, height}) => 
                       <TopXHorizontal width={width} height={height} data={data} numItems={10} events={true} />
+                    }
+                  </ParentSize>
+                </div>
+                <div className="h-96">
+                  <ParentSize>
+                    {({ width, height}) => 
+                      <Heatmap width={width} height={height} data={data} events={true} />
                     }
                   </ParentSize>
                 </div>

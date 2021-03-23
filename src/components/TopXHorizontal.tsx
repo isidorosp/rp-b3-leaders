@@ -10,7 +10,7 @@ import FormatNumber from '../components/FormatNumber';
 export type BarGroupProps = {
   width: number;
   height: number;
-  data: ValidatorDataSet,
+  data: ValidatorDataSet;
   numItems?: number;
   events?: boolean;
 };
@@ -53,7 +53,7 @@ export default withTooltip<BarGroupProps, TooltipData>(({
 
       // accessors
     const getAdjustedBalance = (d: ValidatorData) => d.adjusted_balance;
-    const getValidatorId = (d: ValidatorData) => d.validator.pubkey.slice(0, 5);
+    const getValidatorId = (d: ValidatorData) => d.validator.pubkey;
 
     // scales
     const xScale = useMemo(
@@ -135,7 +135,7 @@ export default withTooltip<BarGroupProps, TooltipData>(({
                     <FormatNumber number={tooltipData.adjusted_balance} />
                   </div>
                   <div className="text-center">{tooltipData.validator.pubkey.slice(0, 5) + '...' + tooltipData.validator.pubkey.slice(-4)}</div>
-                  <div className="text-center">{tooltipData.block_proposals} block proposed</div>
+                  <div className="text-center">{tooltipData.block_proposals} block(s) proposed</div>
                 </div>
               </Tooltip>
               )}
