@@ -5,6 +5,9 @@ import { useFetch } from './hooks/useFetch'
 import ParentSize from '@visx/responsive/lib/components/ParentSize';
 import { ValidatorData } from './validatorData';
 import FormatNumber from './components/FormatNumber';
+import Heatmap from './components/Heatmap';
+import { Range, Direction } from 'react-range';
+import { sortObjArrByKey } from './utils/sorting';
 
 export const NumberFormatContext = React.createContext('eth');
 
@@ -15,11 +18,26 @@ function App() {
   const [configDrawerVisible, setConfigDrawerVisible] = useState(false);
 
   const [numberFormat, setNumberFormat] = useState('eth');
+  const [heatmapScrollValue, setHeatmapScrollValue] = useState([0]);
+  const [heatmapRange, setHeatmapRange] = useState([0, 256]);
 
   const { status, data, error } = useFetch(dataToFetch);
 
   const handleConfigDrawerToggle = () => {
     setConfigDrawerVisible(!configDrawerVisible);
+  }
+
+  const handleHeatmapRangeChange = (values: number[]) => {
+    setHeatmapScrollValue(values)
+    if (data) {
+      const sliceSize = 256;
+      const multiplier = values[0]/100;
+      const mappedValue = data.length * multiplier;
+
+      const newLowerBound = Math.max(0, Math.min(Math.floor(mappedValue - sliceSize/2), data.length-sliceSize));
+      const newUpperbound = Math.min(Math.floor(newLowerBound + sliceSize), data.length);
+      setHeatmapRange([newLowerBound, newUpperbound])
+    }
   }
 
   const handleDataSourceToggle = (e: ChangeEvent<HTMLInputElement>) => {
@@ -37,6 +55,8 @@ function App() {
     setNumberFormat(e.target.value)
   }
 
+  const heatmapData = (data) ? sortObjArrByKey(data!, ['validator', 'activation_epoch'], false, true).slice(heatmapRange[0], heatmapRange[1]) : null;
+
 
   return (
     <NumberFormatContext.Provider value={numberFormat}>
@@ -44,7 +64,6 @@ function App() {
         <div className="flex items-center mb-16 text-6xl font-bold text-center font-montserrat">
           ROCKETPOOL b3<br />
           Leaderboard
-          {}
         </div>
         <div className="flex flex-col w-5/6 mb-16">
           <div>
@@ -109,7 +128,7 @@ function App() {
         <div className="w-5/6 mb-8">
           { (!error && status === 'fetched') &&
             <div>
-              <div className="grid grid-cols-3 gap-4 mb-12">
+              <div className="grid grid-cols-2 gap-4 mb-12">
                 <div className="h-80">
                   <ParentSize>
                     {({ width, height}) => 
@@ -117,23 +136,60 @@ function App() {
                     }
                   </ParentSize>
                 </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4 mb-12">
-                <div className="text-center">
-                  <span className="block mb-1 text-4xl font-bold font-montserrat">Avg. Gains</span>
-                  <span className="text-3xl">
-                    <FormatNumber number={(data.reduce((acc: number, obj: ValidatorData) => { return acc + Number(obj.adjusted_balance) }, 0)/ data.length)} />
-                  </span>
+                <div className="flex flex-row h-96">
+                  <ParentSize>
+                    {({ width, height}) => 
+                      <Heatmap width={width} height={height} data={heatmapData} events={true} />
+                    }
+                  </ParentSize>
+                  <div className="mt-16">
+                    <Range
+                      step={0.1}
+                      min={0}
+                      max={100}
+                      direction={Direction.Down}
+                      values={heatmapScrollValue}
+                      onChange={(values) => handleHeatmapRangeChange(values)}
+                      renderTrack={({ props, children }) => (
+                        <div
+                          {...props}
+                          className="w-0.5 h-full bg-gray-800"
+                          style={{
+                            ...props.style
+                          }}
+                        >
+                          {children}
+                        </div>
+                      )}
+                      renderThumb={({ props }) => (
+                        <div
+                          {...props}
+                          className="w-3 h-8 bg-gray-700"
+                          style={{
+                            ...props.style
+                          }}
+                        />
+                      )}
+                    />
                 </div>
-                <div className="text-center">
-                  <span className="block mb-1 text-4xl font-bold font-montserrat">Total Gains</span>
-                  <span className="text-3xl">
-                    <FormatNumber number={data.reduce((acc: number, obj: ValidatorData) => { return acc + Number(obj.adjusted_balance) }, 0)} />
-                  </span>
-                </div>
               </div>
-              { `total records: ${data.length}`}
             </div>
+            <div className="grid grid-cols-2 gap-4 mb-12">
+              <div className="text-center">
+                <span className="block mb-1 text-4xl font-bold font-montserrat">Avg. Gains</span>
+                <span className="text-3xl">
+                  <FormatNumber number={(data.reduce((acc: number, obj: ValidatorData) => { return acc + Number(obj.adjusted_balance) }, 0)/ data.length)} />
+                </span>
+              </div>
+              <div className="text-center">
+                <span className="block mb-1 text-4xl font-bold font-montserrat">Total Gains</span>
+                <span className="text-3xl">
+                  <FormatNumber number={data.reduce((acc: number, obj: ValidatorData) => { return acc + Number(obj.adjusted_balance) }, 0)} />
+                </span>
+              </div>
+            </div>
+              { `total records: ${data.length}`}
+          </div>
           }
           { (status !== 'fetched') && 
             <div>Data is loading...</div>
