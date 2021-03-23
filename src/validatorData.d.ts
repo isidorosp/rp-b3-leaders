@@ -3,7 +3,7 @@ export interface ValidatorInfo {
   withdrawal_credentials: string,
   effective_balance: string,
   slashed: boolean,
-  actrivation_eligibility_epoch: string,
+  activation_eligibility_epoch: string,
   activation_epoch: string,
   exit_epoch: string,
   withdrawable_epoch: string

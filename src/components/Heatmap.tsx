@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react'
 import { Group } from '@visx/group';
 import { scaleLinear } from '@visx/scale';
-import { Bin, Bins } from '@visx/mock-data/lib/generators/genBins';
+import { Bin } from '@visx/mock-data/lib/generators/genBins';
 import { HeatmapCircle, HeatmapRect } from '@visx/heatmap';
 import { ValidatorDataSet, ValidatorData } from '../validatorData';
-import { extent } from 'd3-array';
+import { bin, extent } from 'd3-array';
 
 const hot1 = '#77312f';
 const hot2 = '#f33d15';
@@ -12,6 +12,14 @@ const cool1 = '#122549';
 const cool2 = '#b4fbde';
 export const background = 'transparent';
 
+type EnhancedBin = Bin & {
+  data: ValidatorData;
+}
+
+export interface EnhancedBins {
+  bin: number;
+  bins: EnhancedBin[];
+}
 
 export type HeatmapProps = {
   width: number;
@@ -39,15 +47,17 @@ const binnifyData = (data: ValidatorDataSet, binSize: number) => {
 
   // for some reason this heatmap starts from the bottom left and works up and right
   // so we need to start from the end then later reverse the result
-  for (let parentIndex = data.length-1; parentIndex >= 0; parentIndex -= binSize) {
+  // for (let parentIndex = data.length-1; parentIndex >= 0; parentIndex -= binSize) {
+  for (let parentIndex = 0; parentIndex < binSize; parentIndex++) {
     // const element = array[index];
     let bins = [];
     let subBin = 0;
 
-    for (let subIndex = 0; subIndex < binSize; subIndex++) {
+    for (let subIndex = binSize-1; subIndex >= 0; subIndex--) {
       const datum = {
         bin: subBin,
-        count: data[parentIndex - subIndex].adjusted_balance
+        count: data[parentIndex + subIndex*binSize].adjusted_balance,
+        data: data[parentIndex + subIndex*binSize]
       }
       bins.push(datum)
       subBin += 150
@@ -60,7 +70,7 @@ const binnifyData = (data: ValidatorDataSet, binSize: number) => {
     bin += 1;
     newArray.push(newEl)
   }
-   return newArray.reverse()
+   return newArray
 }
 
 const Heatmap = ({
@@ -72,7 +82,7 @@ const Heatmap = ({
   margin = defaultMargin,
   separation = 20,
 }: HeatmapProps) => {
-  const graphData: ValidatorDataSet | null = data ? data!.slice(0, 256) : null;
+  const graphData: ValidatorDataSet | null = data ? data : null;
 
 
 
@@ -101,8 +111,9 @@ const Heatmap = ({
   //     return colorMax
   //   }, [graphData]
   // );
-  const bins = (d: Bins) => d.bins;
-  const count = (d: Bin) => d.count;
+  
+  const bins = (d: EnhancedBins) => d.bins;
+  const count = (d: EnhancedBin) => d.count;
 
   const colorMax = max(binData!, d => max(bins(d), count));
   const bucketSizeMax = max(binData!, d => bins(d).length);
@@ -174,6 +185,10 @@ const Heatmap = ({
                     if (!events) return;
                     const { row, column } = bin;
                     alert(JSON.stringify({ row, column, bin: bin.bin }));
+                  }}
+                  onMouseMove={() => {
+                    // const binDetails = bin.bin as EnhancedBin;
+                    // console.log(JSON.stringify(binDetails.data.validator.activation_epoch))
                   }}
                 />
               )),

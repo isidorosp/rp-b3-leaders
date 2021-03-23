@@ -28,6 +28,7 @@
     "postcss-preset-env": "6.x",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
+    "react-range": "^1.8.7",
     "react-scripts": "4.0.3",
     "tailwindcss": "2.x",
     "typescript": "4.x"
