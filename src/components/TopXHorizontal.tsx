@@ -5,6 +5,7 @@ import { scaleLinear, scaleBand } from '@visx/scale';
 import { ValidatorInfo, ValidatorData, ValidatorDataSet } from '../validatorData';
 import { withTooltip, Tooltip, defaultStyles } from '@visx/tooltip';
 import { WithTooltipProvidedProps } from '@visx/tooltip/lib/enhancers/withTooltip';
+import FormatNumber from '../components/FormatNumber';
 
 export type BarGroupProps = {
   width: number;
@@ -130,7 +131,9 @@ export default withTooltip<BarGroupProps, TooltipData>(({
               {tooltipOpen && tooltipData && (
               <Tooltip top={tooltipTop} left={tooltipLeft} style={tooltipStyles}>
                 <div className="flex-col items-center content-center justify-center">
-                  <div className="font-bold text-center">{tooltipData.adjusted_balance}</div>
+                  <div className="font-bold text-center">
+                    <FormatNumber number={tooltipData.adjusted_balance} />
+                  </div>
                   <div className="text-center">{tooltipData.validator.pubkey.slice(0, 5) + '...' + tooltipData.validator.pubkey.slice(-4)}</div>
                   <div className="text-center">{tooltipData.block_proposals} block proposed</div>
                 </div>

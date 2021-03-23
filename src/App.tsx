@@ -6,7 +6,6 @@ import ParentSize from '@visx/responsive/lib/components/ParentSize';
 import { ValidatorData } from './validatorData';
 import FormatNumber from './components/FormatNumber';
 
-
 export const NumberFormatContext = React.createContext('eth');
 
 function App() {

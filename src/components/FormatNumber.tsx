@@ -24,7 +24,7 @@ const FormatNumber = ({
     case 'eth':
     default:
       multiplier = 1/1000000000;
-      decimals = 2;
+      decimals = 4;
       symbol = 'ETH';
 
       break;
