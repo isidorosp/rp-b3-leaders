@@ -43,7 +43,7 @@ export type HeatmapProps = {
   events?: boolean;
 };
 
-const defaultMargin = { top: 10, left: 20, right: 20, bottom: 40 };
+const defaultMargin = { top: 10, left: 20, right: 20, bottom: 60 };
 
 function max<Datum>(data: Datum[], value: (d: Datum) => number): number {
   return Math.max(...data.map(value));
