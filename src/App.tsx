@@ -14,6 +14,8 @@ export const NumberFormatContext = React.createContext('eth');
 function App() {
   const leaderboardUrl = `https://raw.githubusercontent.com/norinthebold/rocketpool-final-beta-leaderboard/main/data/leaderboard.json`;
   const allValidatorsUrl = `https://raw.githubusercontent.com/norinthebold/rocketpool-final-beta-leaderboard/main/data/all_validators.json`;
+  const summaryUrl = `https://raw.githubusercontent.com/norinthebold/rocketpool-final-beta-leaderboard/main/data/summary.json`;
+
   const [dataToFetch, setDataToFetch] = useState(leaderboardUrl);
   const [configDrawerVisible, setConfigDrawerVisible] = useState(false);
 
@@ -22,6 +24,7 @@ function App() {
   const [heatmapRange, setHeatmapRange] = useState([0, 256]);
 
   const { status, data, error } = useFetch(dataToFetch);
+  const { status: summaryStatus, data: summaryData, error: summaryError } = useFetch(summaryUrl);
 
   const handleConfigDrawerToggle = () => {
     setConfigDrawerVisible(!configDrawerVisible);
@@ -126,7 +129,7 @@ function App() {
           </div>
         </div>
         <div className="w-5/6 mb-8">
-          { (!error && status === 'fetched') &&
+          { ((!error && status === 'fetched') && (!summaryError && summaryStatus === 'fetched')) &&
             <div>
               <div className="grid grid-cols-2 gap-4 mb-12">
                 <div className="h-80">
@@ -188,7 +191,10 @@ function App() {
                 </span>
               </div>
             </div>
-              { `total records: ${data.length}`}
+            <div className="text-sm">
+              { `Total records: ${data.length} `} <br />
+              { `Last update: ${new Date(summaryData.script_start).toUTCString()} `}
+            </div>
           </div>
           }
           { (status !== 'fetched') && 
