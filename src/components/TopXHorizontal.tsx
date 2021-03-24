@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 import { Group } from '@visx/group';
 import { Bar } from '@visx/shape';
 import { scaleLinear, scaleBand } from '@visx/scale';
-import { ValidatorInfo, ValidatorData, ValidatorDataSet } from '../validatorData';
+import { ValidatorData, ValidatorDataSet } from '../validatorData';
 import { withTooltip, Tooltip, defaultStyles } from '@visx/tooltip';
 import { WithTooltipProvidedProps } from '@visx/tooltip/lib/enhancers/withTooltip';
 import FormatNumber from '../components/FormatNumber';
@@ -125,7 +125,7 @@ export default withTooltip<BarGroupProps, TooltipData>(({
             </svg>
             <div>
               {tooltipOpen && tooltipData && (
-              <Tooltip top={tooltipTop} left={tooltipLeft} style={tooltipStyles}>
+              <Tooltip top={tooltipTop} left={tooltipLeft} style={tooltipStyles} className="z-50 opacity-80">
                 <div className="flex-col items-center content-center justify-center">
                   <div className="font-bold text-center">
                     <FormatNumber number={tooltipData.adjusted_balance} />

@@ -3,7 +3,7 @@ import { Group } from '@visx/group';
 import { scaleLinear } from '@visx/scale';
 import { Bin } from '@visx/mock-data/lib/generators/genBins';
 import { HeatmapCircle } from '@visx/heatmap';
-import { ValidatorDataSet, ValidatorData, ValidatorInfo } from '../validatorData';
+import { ValidatorDataSet, ValidatorData } from '../validatorData';
 import { withTooltip, Tooltip, defaultStyles } from '@visx/tooltip';
 import { WithTooltipProvidedProps } from '@visx/tooltip/lib/enhancers/withTooltip';
 import FormatNumber from '../components/FormatNumber';
@@ -16,6 +16,13 @@ export const background = 'transparent';
 
 
 type TooltipData = ValidatorData;
+let tooltipTimeout: number;
+const tooltipStyles = {
+  ...defaultStyles,
+  minWidth: 200,
+  backgroundColor: 'rgba(0,0,0,0.9)',
+  color: 'white',
+};
 
 type EnhancedBin = Bin & {
   data: ValidatorData;
@@ -78,7 +85,7 @@ const binnifyData = (data: ValidatorDataSet, binSize: number) => {
    return newArray
 }
 
-const Heatmap = ({
+export default withTooltip<HeatmapProps, TooltipData>(({
   width,
   height,
   data,
@@ -86,186 +93,220 @@ const Heatmap = ({
   events = false,
   margin = defaultMargin,
   separation = 20,
-}: HeatmapProps) => {
-  const graphData: ValidatorDataSet | null = data ? data : null;
+  tooltipOpen,
+  tooltipLeft,
+  tooltipTop,
+  tooltipData,
+  hideTooltip,
+  showTooltip
+}: HeatmapProps & WithTooltipProvidedProps<TooltipData>) => {
+    const graphData: ValidatorDataSet | null = data ? data : null;
 
 
 
-  // const binData = graphData?.map( datum => {
-  //   return { bin: Number(datum.index), bins: [{ bin: Number(datum.index), count: datum.adjusted_balance }] }
-  // })
-  const binData = binnifyData(graphData!, 16)
+    // const binData = graphData?.map( datum => {
+    //   return { bin: Number(datum.index), bins: [{ bin: Number(datum.index), count: datum.adjusted_balance }] }
+    // })
+    const binData = binnifyData(graphData!, 16)
 
-  const size =
-    width > margin.left + margin.right ? width - margin.left - margin.right - separation : width;
-  const xMax = size;
-  const yMax = height - margin.bottom - margin.top;
-
-
+    const size =
+      width > margin.left + margin.right ? width - margin.left - margin.right - separation : width;
+    const xMax = size;
+    const yMax = height - margin.bottom - margin.top;
 
 
-  // accessors
-  // const x = (d: ValidatorData) => Number(d!.index!);
-  // const y = (d: ValidatorData) => d!.validator!;
-  // const z = (d: ValidatorData) => d.adjusted_balance;
 
 
-  // const colorMax = useMemo(
-  //   () => {
-  //     const colorMax = (graphData !== null) ? max(graphData, d => d.adjusted_balance) : 0;
-  //     return colorMax
-  //   }, [graphData]
-  // );
-  
-  const bins = (d: EnhancedBins) => d.bins;
-  const count = (d: EnhancedBin) => d.count;
+    // accessors
+    // const x = (d: ValidatorData) => Number(d!.index!);
+    // const y = (d: ValidatorData) => d!.validator!;
+    // const z = (d: ValidatorData) => d.adjusted_balance;
 
-  const colorMax = max(binData!, d => max(bins(d), count));
-  const bucketSizeMax = max(binData!, d => bins(d).length);
-  const binWidth = xMax / binData!.length;
-  const binHeight = yMax / bucketSizeMax;
-  const radius = min([binWidth, binHeight], d => d) / 2;
 
-  // scales
-  // const testDomain = (graphData !== null) ? graphData.map(getValidatorId) : ["N/A"];
+    // const colorMax = useMemo(
+    //   () => {
+    //     const colorMax = (graphData !== null) ? max(graphData, d => d.adjusted_balance) : 0;
+    //     return colorMax
+    //   }, [graphData]
+    // );
+    
+    const bins = (d: EnhancedBins) => d.bins;
+    const count = (d: EnhancedBin) => d.count;
 
-  // const xScale = scaleLinear<number>({
-  //   domain: extent(graphData!, z!)
-  // });
+    const colorMax = max(binData!, d => max(bins(d), count));
+    const bucketSizeMax = max(binData!, d => bins(d).length);
+    const binWidth = xMax / binData!.length;
+    const binHeight = yMax / bucketSizeMax;
+    const radius = min([binWidth, binHeight], d => d) / 2;
 
-  // const yScale = scaleLinear<number>({
-  //   domain: [0, yMax],
-  // });
+    // scales
+    // const testDomain = (graphData !== null) ? graphData.map(getValidatorId) : ["N/A"];
 
-  // scales
-  const xScale = scaleLinear<number>({
-    domain: [0, binData!.length],
-  });
-  const yScale = scaleLinear<number>({
-    domain: [0, bucketSizeMax],
-  });
-  const circleColorScale = scaleLinear<string>({
-    range: [hot1, hot2],
-    domain: [0, colorMax],
-  });
-  const opacityScale = scaleLinear<number>({
-    range: [0.1, 1],
-    domain: [0, colorMax],
-  });
-  // const colorMax = max(graphData, d => max(getAdjustedBalance(d), getValidatorId));
-  // const bucketSizeMax = max(binData, d => bins(d).length);
-  xScale.range([0, xMax]);
-  yScale.range([yMax, 0]);
+    // const xScale = scaleLinear<number>({
+    //   domain: extent(graphData!, z!)
+    // });
 
-  return (
-    <div>
-      { (data !== null && graphData) &&
-        <div>
-          <div className="w-full text-4xl font-bold text-center font-montserrat">Validator map</div>
+    // const yScale = scaleLinear<number>({
+    //   domain: [0, yMax],
+    // });
 
-          <svg width={width} height={height}>
-      <rect x={0} y={0} width={width} height={height} rx={14} fill={background} />
-      <Group top={margin.top} left={margin.left}>
-        <HeatmapCircle
-          data={binData}
-          xScale={d => xScale(d) ?? 0}
-          yScale={d => yScale(d) ?? 0}
-          colorScale={circleColorScale}
-          opacityScale={opacityScale}
-          radius={radius}
-          gap={2}
-        >
-          {heatmap =>
-            heatmap.map(heatmapBins =>
-              heatmapBins.map(bin => (
-                <circle
-                  key={`heatmap-circle-${bin.row}-${bin.column}`}
-                  className="visx-heatmap-circle"
-                  cx={bin.cx}
-                  cy={bin.cy}
-                  r={bin.r}
-                  fill={bin.color}
-                  fillOpacity={bin.opacity}
-                  onClick={() => {
-                    if (!events) return;
-                    const { row, column } = bin;
-                    alert(JSON.stringify({ row, column, bin: bin.bin }));
-                  }}
-                  onMouseMove={() => {
-                    // const binDetails = bin.bin as EnhancedBin;
-                    // console.log(JSON.stringify(binDetails.data.validator.activation_epoch))
-                  }}
-                />
-              )),
-            )
-          }
-        </HeatmapCircle>
-      </Group>
-          </svg>
-        </div>
-        
-        // <div>
-        //   <div className="w-full text-4xl font-bold text-center font-montserrat">Heatmap</div>
-        //   <svg width={width} height={height}>
-        //     <rect width={width} height={height} fill={background} rx={14} />
-        //     <Group top={verticalMargin / 2}>
-        //       { graphData.map(d => {
-        //         const validatorId = getValidatorId(d);
-        //         const adjBal = getAdjustedBalance(d);
-        //         const barWidth = xMax - (xScale(adjBal) ?? 0);
-        //         const barHeight = yScale.bandwidth();
-        //         const barX = 0;
-        //         const barY = yScale(validatorId);
+    // scales
+    const xScale = scaleLinear<number>({
+      domain: [0, binData!.length],
+    });
+    const yScale = scaleLinear<number>({
+      domain: [0, bucketSizeMax],
+    });
+    const circleColorScale = scaleLinear<string>({
+      range: [hot1, hot2],
+      domain: [0, colorMax],
+    });
+    const opacityScale = scaleLinear<number>({
+      range: [0.1, 1],
+      domain: [0, colorMax],
+    });
+    // const colorMax = max(graphData, d => max(getAdjustedBalance(d), getValidatorId));
+    // const bucketSizeMax = max(binData, d => bins(d).length);
+    xScale.range([0, xMax]);
+    yScale.range([yMax, 0]);
 
-        //         return (
-        //           <Bar 
-        //             key={`bar-${validatorId}`}
-        //             x={barX}
-        //             y={barY}
-        //             width={barWidth}
-        //             height={barHeight}
-        //             fill={barFill}
-        //             onClick={()=> {
-        //               if (events) alert(`clicked: ${JSON.stringify(Object.values(d))}`);
-        //             }}
-        //             onMouseLeave={() => {
-        //               tooltipTimeout = window.setTimeout(() => {
-        //                 hideTooltip();
-        //               }, 300);
-        //             }}
-        //             onMouseMove={() => {
-        //               if (tooltipTimeout) clearTimeout(tooltipTimeout);
-        //               const top = barY;
-        //               const left = barX + barWidth;
-        //               const yOffset = verticalMargin;
-        //               showTooltip({
-        //                 tooltipData: d,
-        //                 tooltipTop: top! + yOffset,
-        //                 tooltipLeft: left,
-        //               });
-        //             }}
-        //           />
-        //         );
-        //     })} 
-        //     </Group>
-        //   </svg>
-        //   <div>
-        //     {tooltipOpen && tooltipData && (
-        //     <Tooltip top={tooltipTop} left={tooltipLeft} style={tooltipStyles}>
-        //       <div className="flex-col items-center content-center justify-center">
-        //         <div className="font-bold text-center">
-        //           <FormatNumber number={tooltipData.adjusted_balance} />
-        //         </div>
-        //         <div className="text-center">{tooltipData.validator.pubkey.slice(0, 5) + '...' + tooltipData.validator.pubkey.slice(-4)}</div>
-        //         <div className="text-center">{tooltipData.block_proposals} block(s) proposed</div>
-        //       </div>
-        //     </Tooltip>
-        //     )}
-        //   </div>
-        // </div>
-      }
-    </div>
-  )
-}
+    return (
+      <div>
+        { (data !== null && graphData) &&
+          <div>
+            <div className="w-full text-4xl font-bold text-center font-montserrat">Validator map</div>
+            <svg width={width} height={height}>
+              <rect x={0} y={0} width={width} height={height} rx={14} fill={background} />
+              <Group top={margin.top} left={margin.left}>
+                <HeatmapCircle
+                  data={binData}
+                  xScale={d => xScale(d) ?? 0}
+                  yScale={d => yScale(d) ?? 0}
+                  colorScale={circleColorScale}
+                  opacityScale={opacityScale}
+                  radius={radius}
+                  gap={2}
+                >
+                  {heatmap =>
+                    heatmap.map(heatmapBins =>
+                      heatmapBins.map(bin => (
+                        <circle
+                          key={`heatmap-circle-${bin.row}-${bin.column}`}
+                          className="text-white stroke-1 hover:stroke-current visx-heatmap-circle"
+                          cx={bin.cx}
+                          cy={bin.cy}
+                          r={bin.r}
+                          fill={bin.color}
+                          fillOpacity={bin.opacity}
+                          onClick={() => {
+                            if (!events) return;
+                            const { row, column } = bin;
+                            alert(JSON.stringify({ row, column, bin: bin.bin }));
+                          }}
+                          onMouseLeave={() => {
+                            tooltipTimeout = window.setTimeout(() => {
+                              hideTooltip();
+                            }, 300);
+                          }}
+                          onMouseMove={() => {
+                            if (tooltipTimeout) clearTimeout(tooltipTimeout);
+                            const top = bin.cy + radius*2;
+                            const left = bin.cx + radius*2;
+                            const binDetails = bin.bin as EnhancedBin;
+                            showTooltip({
+                              tooltipData: binDetails.data,
+                              tooltipTop: top,
+                              tooltipLeft: left,
+                            });
+                          }}
+                        />
+                      )),
+                    )
+                  }
+                </HeatmapCircle>
+              </Group>
+            </svg>
+            <div>
+               {tooltipOpen && tooltipData && (
+              <Tooltip top={tooltipTop} left={tooltipLeft} style={tooltipStyles} className="z-50 opacity-80">
+                <div className="flex-col items-center content-center justify-center">
+                  <div className="font-bold text-center">
+                    <FormatNumber number={tooltipData.adjusted_balance} />
+                  </div>
+                  <div className="text-center">Status {tooltipData.status}</div>
+                  <div className="text-center">Since epoch {tooltipData.validator.activation_epoch}</div>
+                  <div className="text-center">{tooltipData.validator.pubkey.slice(0, 5) + '...' + tooltipData.validator.pubkey.slice(-4)}</div>
+                  <div className="text-center">{tooltipData.block_proposals} block(s) proposed</div>
+                  <div className="text-center">Rewards Rank {tooltipData.rewards_rank}</div>
+                  <div className="text-center">Rank {tooltipData.rank}</div>
 
-export default Heatmap
+                </div>
+              </Tooltip>
+              )}
+            </div>
+          </div>
+          
+          // <div>
+          //   <div className="w-full text-4xl font-bold text-center font-montserrat">Heatmap</div>
+          //   <svg width={width} height={height}>
+          //     <rect width={width} height={height} fill={background} rx={14} />
+          //     <Group top={verticalMargin / 2}>
+          //       { graphData.map(d => {
+          //         const validatorId = getValidatorId(d);
+          //         const adjBal = getAdjustedBalance(d);
+          //         const barWidth = xMax - (xScale(adjBal) ?? 0);
+          //         const barHeight = yScale.bandwidth();
+          //         const barX = 0;
+          //         const barY = yScale(validatorId);
+
+          //         return (
+          //           <Bar 
+          //             key={`bar-${validatorId}`}
+          //             x={barX}
+          //             y={barY}
+          //             width={barWidth}
+          //             height={barHeight}
+          //             fill={barFill}
+          //             onClick={()=> {
+          //               if (events) alert(`clicked: ${JSON.stringify(Object.values(d))}`);
+          //             }}
+          //             onMouseLeave={() => {
+          //               tooltipTimeout = window.setTimeout(() => {
+          //                 hideTooltip();
+          //               }, 300);
+          //             }}
+          //             onMouseMove={() => {
+          //               if (tooltipTimeout) clearTimeout(tooltipTimeout);
+          //               const top = barY;
+          //               const left = barX + barWidth;
+          //               const yOffset = verticalMargin;
+          //               showTooltip({
+          //                 tooltipData: d,
+          //                 tooltipTop: top! + yOffset,
+          //                 tooltipLeft: left,
+          //               });
+          //             }}
+          //           />
+          //         );
+          //     })} 
+          //     </Group>
+          //   </svg>
+          //   <div>
+          //     {tooltipOpen && tooltipData && (
+          //     <Tooltip top={tooltipTop} left={tooltipLeft} style={tooltipStyles}>
+          //       <div className="flex-col items-center content-center justify-center">
+          //         <div className="font-bold text-center">
+          //           <FormatNumber number={tooltipData.adjusted_balance} />
+          //         </div>
+          //         <div className="text-center">{tooltipData.validator.pubkey.slice(0, 5) + '...' + tooltipData.validator.pubkey.slice(-4)}</div>
+          //         <div className="text-center">{tooltipData.block_proposals} block(s) proposed</div>
+          //       </div>
+          //     </Tooltip>
+          //     )}
+          //   </div>
+          // </div>
+        }
+      </div>
+    )
+  }
+);
