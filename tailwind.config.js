@@ -17,7 +17,9 @@ module.exports = {
     },
     extend: {}
   },
-  variants: {},
+  variants: {
+    stroke: ['hover', 'focus']
+  },
   plugins: [],
   purge: {
     // Filenames to scan for classes
