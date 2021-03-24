@@ -62,7 +62,7 @@ function App() {
   }
 
   const handleNodeAddressChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setEth1NodeAddr(e.target.value)
+    setEth1NodeAddr(e.target.value.toLowerCase())
   }
 
   const filterDataByNodeAddr = (data: ValidatorDataSet): ValidatorDataSet => {
