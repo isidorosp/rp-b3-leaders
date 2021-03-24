@@ -11,7 +11,7 @@ export const clone = (items: any) => items.map((item: any) => Array.isArray(item
 //   { id: 2, last: 'Prentice', data:{title: 'tzuio'}}
 // ]
 // keysrt(b,['data','title']);
-export const sortObjArrByKey = (arr: [], keyArr: Array<string>, reverse: boolean = false, forceNumerical = false) => {
+export const sortObjArrByKey = (arr: any[], keyArr: Array<string>, reverse: boolean = false, forceNumerical = false) => {
   const arrCopy = clone(arr); // make a deep clone as to not mutate original array
   let sortOrder = 1;
   

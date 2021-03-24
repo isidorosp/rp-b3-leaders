@@ -66,9 +66,13 @@ const binnifyData = (data: ValidatorDataSet, binSize: number) => {
     let subBin = 0;
 
     for (let subIndex = binSize-1; subIndex >= 0; subIndex--) {
+
+      if ((parentIndex + subIndex*binSize) >= data.length)
+        continue;
+
       const datum = {
         bin: subBin,
-        count: data[parentIndex + subIndex*binSize].adjusted_balance,
+        count: data[parentIndex + subIndex*binSize].adjusted_balance ?? 0,
         data: data[parentIndex + subIndex*binSize]
       }
       bins.push(datum)
@@ -102,12 +106,7 @@ export default withTooltip<HeatmapProps, TooltipData>(({
 }: HeatmapProps & WithTooltipProvidedProps<TooltipData>) => {
     const graphData: ValidatorDataSet | null = data ? data : null;
 
-
-
-    // const binData = graphData?.map( datum => {
-    //   return { bin: Number(datum.index), bins: [{ bin: Number(datum.index), count: datum.adjusted_balance }] }
-    // })
-    const binData = binnifyData(graphData!, 16)
+    const binData = binnifyData(graphData!, 16);
 
     const size =
       width > margin.left + margin.right ? width - margin.left - margin.right - separation : width;
