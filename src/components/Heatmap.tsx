@@ -3,13 +3,19 @@ import { Group } from '@visx/group';
 import { scaleLinear } from '@visx/scale';
 import { Bin } from '@visx/mock-data/lib/generators/genBins';
 import { HeatmapCircle } from '@visx/heatmap';
-import { ValidatorDataSet, ValidatorData } from '../validatorData';
+import { ValidatorDataSet, ValidatorData, ValidatorInfo } from '../validatorData';
+import { withTooltip, Tooltip, defaultStyles } from '@visx/tooltip';
+import { WithTooltipProvidedProps } from '@visx/tooltip/lib/enhancers/withTooltip';
+import FormatNumber from '../components/FormatNumber';
 
 const hot1 = '#77312f';
 const hot2 = '#f33d15';
 // const cool1 = '#122549';
 // const cool2 = '#b4fbde';
 export const background = 'transparent';
+
+
+type TooltipData = ValidatorData;
 
 type EnhancedBin = Bin & {
   data: ValidatorData;

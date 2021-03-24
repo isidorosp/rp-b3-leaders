@@ -15,11 +15,7 @@ export type BarGroupProps = {
   events?: boolean;
 };
 
-type TooltipData = {
-  validator: ValidatorInfo;
-  adjusted_balance: number;
-  block_proposals: number;
-};
+type TooltipData = ValidatorData;
 
 const verticalMargin = 40;
 const background = 'transparent';
@@ -134,6 +130,7 @@ export default withTooltip<BarGroupProps, TooltipData>(({
                   <div className="font-bold text-center">
                     <FormatNumber number={tooltipData.adjusted_balance} />
                   </div>
+                  <div className="text-center">Rewards Rank {tooltipData.rewards_rank}</div>
                   <div className="text-center">{tooltipData.validator.pubkey.slice(0, 5) + '...' + tooltipData.validator.pubkey.slice(-4)}</div>
                   <div className="text-center">{tooltipData.block_proposals} block(s) proposed</div>
                 </div>
