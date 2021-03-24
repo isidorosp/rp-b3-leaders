@@ -80,8 +80,8 @@ function App() {
 
   return (
     <NumberFormatContext.Provider value={numberFormat}>
-      <div className="flex flex-col items-center justify-center h-full text-white bg-black">
-        <div className="flex items-center mb-16 text-6xl font-bold text-center font-montserrat">
+      <div className="flex flex-col items-center justify-center h-full text-white">
+        <div className="flex items-center my-16 text-2xl font-bold text-center md:text-5xl font-montserrat">
           ROCKETPOOL b3<br />
           Leaderboard
         </div>
@@ -213,8 +213,8 @@ function App() {
             </div>
             <div className="grid grid-cols-2 gap-4 mb-12">
               <div className="text-center">
-                <span className="block mb-1 text-4xl font-bold font-montserrat">Avg. Gains</span>
-                <div className="text-3xl">
+                <span className="block mb-1 text-xl font-bold md:text-4xl font-montserrat">Avg. Gains</span>
+                <div className="text-l md:text-3xl">
                   <div className="block">
                     <FormatNumber number={(data.reduce((acc: number, obj: ValidatorData) => { return acc + Number(obj.adjusted_balance) }, 0)/ data.length)} />
                   </div>
@@ -226,8 +226,8 @@ function App() {
                 </div>
               </div>
               <div className="text-center">
-                <span className="block mb-1 text-4xl font-bold font-montserrat">Total Gains</span>
-                <div className="text-3xl">
+                <span className="block mb-1 text-xl font-bold md:text-4xl font-montserrat">Total Gains</span>
+                <div className="text-l md:text-3xl">
                   <div className="block">
                     <FormatNumber number={data.reduce((acc: number, obj: ValidatorData) => { return acc + Number(obj.adjusted_balance) }, 0)} />
                   </div>
@@ -239,7 +239,7 @@ function App() {
                 </div>
               </div>
             </div>
-            <div className="text-sm">
+            <div className="text-xs md:text-sm">
               { `Total records: ${data.length} `} <br />
               { `Last update: ${new Date(summaryData.script_start).toUTCString()} `}
             </div>

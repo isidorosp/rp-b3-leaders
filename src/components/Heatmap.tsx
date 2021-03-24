@@ -173,7 +173,7 @@ export default withTooltip<HeatmapProps, TooltipData>(({
       <div>
         { (data !== null && graphData) &&
           <div>
-            <div className="w-full text-4xl font-bold text-center font-montserrat">Validator map</div>
+            <div className="w-full text-xl font-bold text-center md:text-4xl font-montserrat">Validator map</div>
             <svg width={width} height={height}>
               <rect x={0} y={0} width={width} height={height} rx={14} fill={background} />
               <Group top={margin.top} left={margin.left}>

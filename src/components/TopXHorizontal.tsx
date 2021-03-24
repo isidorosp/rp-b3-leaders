@@ -79,7 +79,7 @@ export default withTooltip<BarGroupProps, TooltipData>(({
       <div>
         { (data !== null && graphData) &&
           <div>
-            <div className="w-full text-4xl font-bold text-center font-montserrat">
+            <div className="w-full text-xl font-bold text-center md:text-4xl font-montserrat">
               { (data.length > 250) ? `Top ${numItems}` : 'Selected node rankings' }
             </div>
             <svg width={width} height={height}>

@@ -2,7 +2,7 @@ import React from 'react'
 
 const Footer = () => {
   return (
-    <div className="flex justify-between w-5/6 my-10 text-sm text-center">
+    <div className="flex justify-between w-5/6 my-10 text-xs text-center md:text-sm">
       <span>
         Made by <a href="https://twitter.com/IsdrsP">Izzy</a> for the <a href="https://www.rocketpool.net/">rocketpool</a> beta.
         Data by <a href="https://github.com/norinthebold/rocketpool-final-beta-leaderboard/">Norin</a>.
